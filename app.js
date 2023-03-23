@@ -12,7 +12,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/dailyWage", tasks);
 
-const port = 3001
+const port = 3000
 const start = async() => {
     try {
         await connectDB(process.env.MONGO_URI);
@@ -23,3 +23,5 @@ const start = async() => {
 }
 
 start();
+// app.listen(port);
+// console.log("started");
