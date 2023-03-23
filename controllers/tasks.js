@@ -3,6 +3,40 @@ const User = require("../models/users");
 const jwt = require("jsonwebtoken");
 const Image = require("../models/image");
 const fs = require("fs");
+const WorkType = require("../models/works");
+const uploadWorkImage = async (req, res) => {
+    try {
+        console.log(req);
+        const obj = await WorkType.create({
+            nameOfWork: req.body.nameOfWork,
+            description: req.body.desc,
+            image: fs.readFileSync('workImages/' + req.file.filename)
+        });
+        console.log("uploaded");
+        res.status(200).json({ msg: "file uploaded successfully" });
+    } catch (e) {
+        res.json(e.message);
+    } 
+}
+
+const getUploadedWorkImage = async (req, res) => {
+    try {
+        const allData = await WorkType.find();
+        console.log(allData);
+        const obj = []
+        allData.forEach(function (item) {
+            let tmp = {
+                'name': item.nameOfWork,
+                'description': item.description,
+                'imageBuffer': item.image
+            };
+            obj.push(tmp);
+        })
+        res.status(200).json(obj);
+    } catch (e) {
+        console.log(e.message);
+    }
+}
 
 const uploadFile = async (req, res) =>{
     try {
@@ -77,5 +111,5 @@ const loginUser = async (req, res) => {
 }
 
 module.exports = {
-    createUser,loginUser, uploadFile,getFiles
+    createUser,loginUser, uploadFile,getFiles, getUploadedWorkImage, uploadWorkImage
 };

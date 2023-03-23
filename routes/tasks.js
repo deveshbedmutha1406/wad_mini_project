@@ -18,15 +18,31 @@ const uploads = multer({
         filesize: 1024 * 1024 * 5   // FILE SIZE IF SET TO 5 MB MAX
     }
 });
-// router.use(express.urlencoded({ extended: false }));
+// now make seprate folder for uploading images of work.
 
-const { createUser, loginUser, uploadFile, getFiles } = require("../controllers/tasks");
+const storageObj = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './workImages');
+    },
+    filename: function (req, file, cb) {
+        cb(null, new Date().toISOString() + file.originalname);
+    }
+});
+
+const uploadObj = multer({
+    storage: storageObj
+});
+
+const { createUser, loginUser, uploadFile, getFiles, uploadWorkImage, getUploadedWorkImage } = require("../controllers/tasks");
 router.route("/createUser").post(createUser);
 // router.route("/getToken").post(loginUser);
 router.post("/login", authenticateToken, loginUser);
 
 router.post("/file", uploads.single("image"), uploadFile);
 router.route("/file").get(getFiles);
+
+router.post("/uploadWorkImage", uploadObj.single("workImage"), uploadWorkImage);
+router.route("/uploadWorkImage").get(getUploadedWorkImage);
 
 async function authenticateToken(req, res, next) {
     // get token from header. Bearer TOKEN format.
