@@ -14,7 +14,10 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: () => Date.now()
     },
-    token: String
+    token: String,
+    userType: String,
+    jobs_applied: [mongoose.SchemaTypes.ObjectId]
+    
 });
 
 module.exports = mongoose.model("User", userSchema);

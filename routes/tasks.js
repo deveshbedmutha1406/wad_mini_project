@@ -33,7 +33,7 @@ const uploadObj = multer({
     storage: storageObj
 });
 
-const { createUser, loginUser, uploadFile, getFiles, uploadWorkImage, getUploadedWorkImage } = require("../controllers/tasks");
+const { createUser, loginUser, uploadFile, getFiles, uploadWorkImage, getUploadedWorkImage, createNewJob, getAllWorkType } = require("../controllers/tasks");
 router.route("/createUser").post(createUser);
 // router.route("/getToken").post(loginUser);
 router.post("/login", authenticateToken, loginUser);
@@ -41,8 +41,14 @@ router.post("/login", authenticateToken, loginUser);
 router.post("/file", uploads.single("image"), uploadFile);
 router.route("/file").get(getFiles);
 
+// this are for home page adding new worktype along with its image.
 router.post("/uploadWorkImage", uploadObj.single("workImage"), uploadWorkImage);
 router.route("/uploadWorkImage").get(getUploadedWorkImage);
+
+// create new job and assign it to particular worktype.
+router.route("/createNewJob").post(createNewJob);
+
+router.route("/getAllWorkType").get(getAllWorkType)
 
 async function authenticateToken(req, res, next) {
     // get token from header. Bearer TOKEN format.

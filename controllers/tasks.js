@@ -4,6 +4,8 @@ const jwt = require("jsonwebtoken");
 const Image = require("../models/image");
 const fs = require("fs");
 const WorkType = require("../models/works");
+const Jobs = require("../models/Jobs");
+
 const uploadWorkImage = async (req, res) => {
     try {
         console.log(req);
@@ -110,6 +112,42 @@ const loginUser = async (req, res) => {
     }
 }
 
+// creates a new job under specific work type and returns the entire object.
+const createNewJob = async (req, res) => {
+    try {
+        /*
+            params: worktype, location, pay per day, working hour per day.
+        */
+        worktypeid = req.body.worktypeid;
+        payPerDay = parseInt(req.body.payPerDay);
+        workingHours = parseInt(req.body.workingHours);
+        location = req.body.location;
+        const JobObject = await Jobs.create({
+            location: location,
+            workingHours: workingHours,
+            payPerDay: payPerDay
+        })
+        if (!JobObject) {
+            res.json({ msg: "Job object not created" });
+        }
+        const workObject = await WorkType.findById(worktypeid);
+        if (!workObject) {
+            res.json({ msg: "invalid worktype" });
+        }
+        workObject.availJobs.push(JobObject);
+        workObject.save();
+        res.status(201).json({ JobObject });
+    } catch (e) {
+        res.json(e.message);
+    }
+}
+
+// gets specific fields from mongodb of schema WorkType.
+const getAllWorkType = async (req, res) => {
+    const data = await WorkType.find({}, {nameOfWork: 1, description: 1, availJobs:1});
+    res.json({ data });
+}
+
 module.exports = {
-    createUser,loginUser, uploadFile,getFiles, getUploadedWorkImage, uploadWorkImage
+    createUser,loginUser, uploadFile,getFiles, getUploadedWorkImage, uploadWorkImage, createNewJob, getAllWorkType
 };
