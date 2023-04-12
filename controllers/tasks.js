@@ -30,7 +30,8 @@ const getUploadedWorkImage = async (req, res) => {
             let tmp = {
                 'name': item.nameOfWork,
                 'description': item.description,
-                'imageBuffer': item.image
+                'imageBuffer': item.image,
+                'id': item._id
             };
             obj.push(tmp);
         })
@@ -148,6 +149,26 @@ const getAllWorkType = async (req, res) => {
     res.json({ data });
 }
 
+const getSpecificTypeWorks = async (req, res) => {
+    // requires worktype id.
+    try {
+        const workTypeid = req.query.id;
+        console.log(req.query);
+        const data = await WorkType.findById(workTypeid, { availJobs: 1 });
+        obj = []
+        
+        for (i = 0; i < data["availJobs"].length; i++){
+            const tmp = await Jobs.findById(data["availJobs"][i]._id, {location: 1, payPerDay: 1, workingHours: 1});
+            obj.push(tmp);
+        }
+        res.json(obj);
+    } catch (e) {
+        console.log("error occured");
+        res.status(500).json(e.message);
+    }
+    
+}
+
 module.exports = {
-    createUser,loginUser, uploadFile,getFiles, getUploadedWorkImage, uploadWorkImage, createNewJob, getAllWorkType
+    createUser,loginUser, uploadFile,getFiles, getUploadedWorkImage, uploadWorkImage, createNewJob, getAllWorkType, getSpecificTypeWorks
 };

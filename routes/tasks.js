@@ -33,10 +33,10 @@ const uploadObj = multer({
     storage: storageObj
 });
 
-const { createUser, loginUser, uploadFile, getFiles, uploadWorkImage, getUploadedWorkImage, createNewJob, getAllWorkType } = require("../controllers/tasks");
+const { createUser, loginUser, uploadFile, getFiles, uploadWorkImage, getUploadedWorkImage, createNewJob, getAllWorkType,getSpecificTypeWorks } = require("../controllers/tasks");
 router.route("/createUser").post(createUser);
 // router.route("/getToken").post(loginUser);
-router.post("/login", authenticateToken, loginUser);
+router.post("/login", loginUser);   // removed auth middle ware.
 
 router.post("/file", uploads.single("image"), uploadFile);
 router.route("/file").get(getFiles);
@@ -49,6 +49,9 @@ router.route("/uploadWorkImage").get(getUploadedWorkImage);
 router.route("/createNewJob").post(createNewJob);
 
 router.route("/getAllWorkType").get(getAllWorkType)
+
+// route for getting jobs of specific category and their details.
+router.route("/getSpecificTypeWorks").get(getSpecificTypeWorks)
 
 async function authenticateToken(req, res, next) {
     // get token from header. Bearer TOKEN format.
