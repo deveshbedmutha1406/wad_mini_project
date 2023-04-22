@@ -6,6 +6,15 @@ const fs = require("fs");
 const WorkType = require("../models/works");
 const Jobs = require("../models/Jobs");
 
+const getAllUsers = async (req, res) => {
+    try {
+        const data = await User.find({});
+        res.json({ data });
+    } catch (e) {
+        res.json({msg: e.message });
+    }
+}
+
 const uploadWorkImage = async (req, res) => {
     try {
         console.log(req);
@@ -71,18 +80,27 @@ const createUser = async (req, res) => {
     try {
         username = req.body.username;
         password = req.body.password;
+        name = req.body.name;
+        phoneno = req.body.phoneno;
+        email = req.body.email;
+        usertype = req.body.usertype;
+
         const hashedPassword = await bcrypt.hash(password, 10);
         const obj = { username: username, password: password };
         const accessToken = jwt.sign(obj, process.env.ACCESS_TOKEN_SECRET);
         const user = await User.create({
             username: username,
             password: hashedPassword,
-            token: accessToken
+            token: accessToken,
+            name: name,
+            email: email,
+            phoneno: phoneno,
+            usertype: usertype
         }); // store token at the time of creating user.
-        
-        res.json({token: accessToken});
+        console.log(user);
+        res.json({token: accessToken, 'Status': 'Created'});
     } catch (err) {
-        res.status(500).json({ msg: err['message'] }); 
+        res.status(500).json({ msg: err['message'] , 'Status': 'Error Creating'}); 
     }
 }
 
@@ -120,13 +138,19 @@ const createNewJob = async (req, res) => {
             params: worktype, location, pay per day, working hour per day.
         */
         worktypeid = req.body.worktypeid;
-        payPerDay = parseInt(req.body.payPerDay);
+        payPerDay = parseInt(req.body.pay);
         workingHours = parseInt(req.body.workingHours);
-        location = req.body.location;
+        location = req.body.address;
+        userid = req.body.userid;
+        const data = await User.findById(userid);
+        if (!data) {
+            res.json({ msg: "user not found" });
+        }
         const JobObject = await Jobs.create({
             location: location,
             workingHours: workingHours,
-            payPerDay: payPerDay
+            payPerDay: payPerDay,
+            jobCreater: data
         })
         if (!JobObject) {
             res.json({ msg: "Job object not created" });
@@ -169,6 +193,57 @@ const getSpecificTypeWorks = async (req, res) => {
     
 }
 
+// apply is post method to form a link between user and job giver.
+const apply = async (req, res) => {
+    try {   
+        // params userid, workid, 
+        const jobid = req.body.workid;
+        const userid = req.body.userid;
+        const job = await Jobs.findById(jobid, { appliedUsers: 1 });
+        if (!job) {
+            res.status(400).json("Not Found");
+        }
+        const userobj = await User.findById(userid);
+        job.appliedUsers.push(userobj); // put that object in applies job array.
+        job.save();
+        res.status(201).json({ msg: 'Applied Success' });   
+    } catch (e) {
+        res.status(500).json({ msg: e.message });
+    }
+}
+
+// get request only for job giver (who have applied for that jobs)
+const getApplications = async (req, res) => {
+    // show applications option for job giver only.
+    try {   
+        // params the one who is requesting data.
+        const userid = req.body.userid;
+        const data = await User.findById(userid);
+        if (!data) {
+            res.json({ msg: "user not found" });
+        }
+        const allData = await Jobs.findOne({ jobCreater: data });
+        if (!allData) {
+            res.status(400).json({ msg: "creater not found" });
+        }
+        // res.json({ allData });
+        appliedUsers = []
+        for (i = 0; i < allData['appliedUsers'].length; i++){
+            const tmp = await User.findById(allData['appliedUsers'][i]._id, { name: 1, email: 1, phoneno: 1 });
+            console.log(tmp);
+            if (!tmp) {
+                res.json({ msg: "for loop error" });
+            }
+            appliedUsers.push(tmp);
+        }
+
+        res.json({ data: appliedUsers });
+
+    } catch (e) {
+        res.status(500).json({ msg: e.message });
+    }
+}
+
 module.exports = {
-    createUser,loginUser, uploadFile,getFiles, getUploadedWorkImage, uploadWorkImage, createNewJob, getAllWorkType, getSpecificTypeWorks
+    createUser,loginUser, uploadFile,getFiles, getUploadedWorkImage, uploadWorkImage, createNewJob, getAllWorkType, getSpecificTypeWorks, apply,getAllUsers, getApplications
 };

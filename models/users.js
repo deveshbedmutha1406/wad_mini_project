@@ -1,6 +1,10 @@
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        maxLength: 100
+    },
     username: {
         type: String,
         minLength: 10
@@ -15,7 +19,9 @@ const userSchema = new mongoose.Schema({
         default: () => Date.now()
     },
     token: String,
-    userType: String,
+    usertype: String,
+    email: String,
+    phoneno: Number,
     jobs_applied: [mongoose.SchemaTypes.ObjectId]
     
 });
