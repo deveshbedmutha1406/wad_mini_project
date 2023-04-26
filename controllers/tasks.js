@@ -7,6 +7,8 @@ const WorkType = require("../models/works");
 const Jobs = require("../models/Jobs");
 
 const getAllUsers = async (req, res) => {
+    console.log(req.userType);
+    console.log(req.username1);
     try {
         const data = await User.find({});
         res.json({ data });
@@ -80,19 +82,19 @@ const createUser = async (req, res) => {
     try {
         username = req.body.username;
         password = req.body.password;
-        name = req.body.name;
+        name1 = req.body.name;
         phoneno = req.body.phoneno;
         email = req.body.email;
         usertype = req.body.usertype;
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const obj = { username: username, password: password };
+        const obj = { username: username, password: hashedPassword, userType:usertype };
         const accessToken = jwt.sign(obj, process.env.ACCESS_TOKEN_SECRET);
         const user = await User.create({
             username: username,
             password: hashedPassword,
             token: accessToken,
-            name: name,
+            name: name1,
             email: email,
             phoneno: phoneno,
             usertype: usertype
@@ -107,7 +109,7 @@ const createUser = async (req, res) => {
 const loginUser = async (req, res) => {
     try {
         console.log("inside login User")
-        console.log(req.user);  // object from middle ware.
+        // console.log(req.user);  // object from middle ware.
         uname = req.body.username;
         password = req.body.password;
         console.log(uname);

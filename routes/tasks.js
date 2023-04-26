@@ -3,6 +3,8 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const User = require("../models/users");
 const multer = require("multer");
+const bcrypt = require("bcrypt");
+
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, './uploads');
@@ -56,8 +58,8 @@ router.route("/getSpecificTypeWorks").get(getSpecificTypeWorks)
 // apply job .
 
 router.route("/apply").post(apply);
-
-router.route('/getAllUsers').get(getAllUsers);
+// router.route('/getAllUsers').get(getAllUsers);
+router.get("/getAllUsers", authenticateToken, getAllUsers);
 
 router.route("/getApplications").get(getApplications);
 
@@ -66,23 +68,22 @@ async function authenticateToken(req, res, next) {
     try {
         const authHeader = req.headers['authorization'];
         const token = authHeader && authHeader.split(' ')[1];
-        if (token == null) return res.sendStatus(401);
-        jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user)=>{
-            if (err) return res.sendStatus(403);    // no access token but not valid.
-            // check in db.
-            const obj = { username: req.body.username }
-            const atoken = await User.findOne(obj);
-            if (atoken) {
-                if (atoken.token === token) {
-                    req.user = user;    // seting object;
-                    next();
-                } else {
-                    res.sendStatus(403);
-                }
-            } else {
-                res.sendStatus(403);
+        if (token == null) return res.status(401).json({"err": "token not given"});
+
+        try {
+            let decoded = await jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+            console.log(decoded);
+            const data = await User.findOne({ username: decoded.username, usertype: decoded.userType });
+            if (!data) {
+                res.json({ msg: "Invalid User" });
             }
-        })
+            req['userType'] = data.usertype;
+            req['username1'] = data.username;
+            next();
+        } catch (err) {
+            res.json({ err });
+        }
+
         
     } catch (e) {
         res.sendStatus(500);
