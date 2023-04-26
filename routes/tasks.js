@@ -45,7 +45,8 @@ router.route("/file").get(getFiles);
 
 // this are for home page adding new worktype along with its image.
 router.post("/uploadWorkImage", uploadObj.single("workImage"), uploadWorkImage);
-router.route("/uploadWorkImage").get(getUploadedWorkImage);
+// router.route("/uploadWorkImage").get(getUploadedWorkImage);
+router.get("/uploadWorkImage", authenticateToken, getUploadedWorkImage);
 
 // create new job and assign it to particular worktype.
 router.route("/createNewJob").post(createNewJob);

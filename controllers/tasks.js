@@ -200,7 +200,16 @@ const apply = async (req, res) => {
     try {   
         // params userid, workid, 
         const jobid = req.body.workid;
-        const userid = req.body.userid;
+        const username1 = req.username1
+        const userType1 = req.userType;
+        const tmpUser = await User.findOne({ username: username1, usertype: userType1 });
+        if (!tmpUser) {
+            console.log("user not found");
+            res.status(400);
+        }
+        const userid = tmpUser._id;
+        console.log(jobid);
+        console.log(userid);
         const job = await Jobs.findById(jobid, { appliedUsers: 1 });
         if (!job) {
             res.status(400).json("Not Found");
