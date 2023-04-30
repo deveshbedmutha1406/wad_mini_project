@@ -68,6 +68,7 @@ async function authenticateToken(req, res, next) {
     try {
         const authHeader = req.headers['authorization'];
         const token = authHeader && authHeader.split(' ')[1];
+        console.log("71");
         if (token == null) return res.status(401).json({"err": "token not given"});
 
         try {
@@ -79,8 +80,10 @@ async function authenticateToken(req, res, next) {
             }
             req['userType'] = data.usertype;
             req['username1'] = data.username;
+            console.log("calling next");
             next();
         } catch (err) {
+            console.log("error occured on 86");
             res.json({ err });
         }
 

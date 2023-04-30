@@ -198,6 +198,7 @@ const getSpecificTypeWorks = async (req, res) => {
 // apply is post method to form a link between user and job giver.
 const apply = async (req, res) => {
     try {   
+        console.log("inside apply funciont");
         // params userid, workid, 
         const jobid = req.body.workid;
         const username1 = req.username1
