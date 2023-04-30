@@ -202,6 +202,10 @@ const apply = async (req, res) => {
         const jobid = req.body.workid;
         const username1 = req.username1
         const userType1 = req.userType;
+        // check usertype
+        if (userType1 == 'giver') {
+            res.status(300).json({ msg: "you must be job seeker in order to apply to job" });
+        }
         const tmpUser = await User.findOne({ username: username1, usertype: userType1 });
         if (!tmpUser) {
             console.log("user not found");

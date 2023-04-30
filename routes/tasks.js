@@ -57,8 +57,7 @@ router.route("/getAllWorkType").get(getAllWorkType)
 router.route("/getSpecificTypeWorks").get(getSpecificTypeWorks)
 
 // apply job .
-
-router.route("/apply").post(apply);
+router.post("/apply", authenticateToken, apply);
 // router.route('/getAllUsers').get(getAllUsers);
 router.get("/getAllUsers", authenticateToken, getAllUsers);
 
