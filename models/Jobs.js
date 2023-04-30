@@ -5,6 +5,7 @@ const Jobs = new mongoose.Schema({
     location: String,
     payPerDay: Number,
     workingHours: Number,
+    description: String,
     appliedUsers: {
         type: [mongoose.SchemaTypes.ObjectId],
         ref: users

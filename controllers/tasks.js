@@ -139,12 +139,18 @@ const createNewJob = async (req, res) => {
         /*
             params: worktype, location, pay per day, working hour per day.
         */
+        if (req.userType == "seeker") {
+            console.log("seeker logged in ");
+            res.json({ msg: "Be a Giver to post new job." });
+        }
         worktypeid = req.body.worktypeid;
         payPerDay = parseInt(req.body.pay);
         workingHours = parseInt(req.body.workingHours);
         location = req.body.address;
-        userid = req.body.userid;
+        userid = req.userid;
+        desc = req.body.description
         const data = await User.findById(userid);
+        console.log("149 line");
         if (!data) {
             res.json({ msg: "user not found" });
         }
@@ -152,7 +158,8 @@ const createNewJob = async (req, res) => {
             location: location,
             workingHours: workingHours,
             payPerDay: payPerDay,
-            jobCreater: data
+            jobCreater: data,
+            description: desc
         })
         if (!JobObject) {
             res.json({ msg: "Job object not created" });
@@ -182,12 +189,12 @@ const getSpecificTypeWorks = async (req, res) => {
         console.log(req.query);
         const data = await WorkType.findById(workTypeid, { availJobs: 1 });
         obj = []
-        
+        console.log('inside specific work');
         for (i = 0; i < data["availJobs"].length; i++){
-            const tmp = await Jobs.findById(data["availJobs"][i]._id, {location: 1, payPerDay: 1, workingHours: 1});
+            const tmp = await Jobs.findById(data["availJobs"][i]._id, { location: 1, payPerDay: 1, workingHours: 1, description: 1 });
             obj.push(tmp);
         }
-        res.json(obj);
+        res.json({obj, 'type': req.userType});
     } catch (e) {
         console.log("error occured");
         res.status(500).json(e.message);

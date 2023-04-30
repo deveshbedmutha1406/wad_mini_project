@@ -49,12 +49,12 @@ router.post("/uploadWorkImage", uploadObj.single("workImage"), uploadWorkImage);
 router.get("/uploadWorkImage", authenticateToken, getUploadedWorkImage);
 
 // create new job and assign it to particular worktype.
-router.route("/createNewJob").post(createNewJob);
+router.post("/createNewJob", authenticateToken, createNewJob);
 
 router.route("/getAllWorkType").get(getAllWorkType)
 
 // route for getting jobs of specific category and their details.
-router.route("/getSpecificTypeWorks").get(getSpecificTypeWorks)
+router.get("getSpecificTypeWorks", authenticateToken, getSpecificTypeWorks);
 
 // apply job .
 router.post("/apply", authenticateToken, apply);
@@ -80,6 +80,7 @@ async function authenticateToken(req, res, next) {
             }
             req['userType'] = data.usertype;
             req['username1'] = data.username;
+            req['userid'] = data._id;
             console.log("calling next");
             next();
         } catch (err) {
