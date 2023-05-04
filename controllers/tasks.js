@@ -240,7 +240,11 @@ const getApplications = async (req, res) => {
     // show applications option for job giver only.
     try {   
         // params the one who is requesting data.
-        const userid = req.body.userid;
+        const userid = req.userid;
+        const userType = req.userType;
+        if (userType == 'seeker') {
+            res.json({ msg: 'Current User is Seeker' });
+        }
         const data = await User.findById(userid);
         if (!data) {
             res.json({ msg: "user not found" });
@@ -267,6 +271,45 @@ const getApplications = async (req, res) => {
     }
 }
 
+
+const getProfileDetails = async (req, res) =>  {
+    const userid = req.userid;
+    const data = await User.findById(userid, { name: 1, username: 1, usertype: 1, email: 1, phoneno: 1});
+    const final_data = {}
+    final_data["basic_detail"] = data;
+    if(data.usertype === 'giver'){
+        final_data["applied_users"] = []
+        const job = await Jobs.findOne({ jobCreater: data._id });
+        if (job) {
+            for (i = 0; i < job['appliedUsers'].length; i++){
+                const u1 = await User.findById(job['appliedUsers'][i]._id, { name: 1, username: 1, usertype: 1, email: 1, phoneno: 1 });
+                final_data['applied_users'].push(u1);
+            }
+        }
+        res.json({data:final_data});
+    } else {
+        // where that user have applied.
+        final_data['jobs_applied'] = []
+        const d1 = await Jobs.find({});
+        console.log(d1[d1.length - 1]['appliedUsers'][0]._id == '6452b1a6c2cd7f64ed54f93c');
+        d1.map((ele)=> {
+            if (ele['appliedUsers']) {
+
+                for (i = 0; i < ele['appliedUsers'].length; i++) {
+                    console.log(ele['appliedUsers'][i]._id);
+                    if (String(ele['appliedUsers'][i]._id) == String(userid._id)) {
+                        final_data['jobs_applied'].push(ele);
+                        break;
+                    }
+                
+                }
+            }
+        })
+        res.json({data:final_data});
+    }
+
+}
+
 module.exports = {
-    createUser,loginUser, uploadFile,getFiles, getUploadedWorkImage, uploadWorkImage, createNewJob, getAllWorkType, getSpecificTypeWorks, apply,getAllUsers, getApplications
+    createUser,loginUser, uploadFile,getFiles, getUploadedWorkImage, uploadWorkImage, createNewJob, getAllWorkType, getSpecificTypeWorks, apply,getAllUsers, getApplications, getProfileDetails
 };
