@@ -77,7 +77,10 @@ async function authenticateToken(req, res, next) {
             let decoded = await jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
             console.log(decoded);
             const data = await User.findOne({ username: decoded.username, usertype: decoded.userType });
+            console.log(data);
             if (!data) {
+                console.log("Invalid User");
+                
                 res.json({ msg: "Invalid User" });
             }
             req['userType'] = data.usertype;
@@ -89,7 +92,6 @@ async function authenticateToken(req, res, next) {
             console.log("error occured on 86");
             res.json({ err });
         }
-
         
     } catch (e) {
         res.sendStatus(500);

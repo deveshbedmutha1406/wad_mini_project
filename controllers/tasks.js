@@ -194,7 +194,7 @@ const getSpecificTypeWorks = async (req, res) => {
             const tmp = await Jobs.findById(data["availJobs"][i]._id, { location: 1, payPerDay: 1, workingHours: 1, description: 1 });
             obj.push(tmp);
         }
-        res.json({obj, 'type': req.userType});
+        res.json({obj, 'usertype': req.userType});
     } catch (e) {
         console.log("error occured");
         res.status(500).json(e.message);
@@ -277,6 +277,7 @@ const getProfileDetails = async (req, res) =>  {
     const data = await User.findById(userid, { name: 1, username: 1, usertype: 1, email: 1, phoneno: 1});
     const final_data = {}
     final_data["basic_detail"] = data;
+    console.log("usertype: " , data.usertype); 
     if(data.usertype === 'giver'){
         final_data["applied_users"] = []
         const job = await Jobs.findOne({ jobCreater: data._id });
@@ -291,7 +292,7 @@ const getProfileDetails = async (req, res) =>  {
         // where that user have applied.
         final_data['jobs_applied'] = []
         const d1 = await Jobs.find({});
-        console.log(d1[d1.length - 1]['appliedUsers'][0]._id == '6452b1a6c2cd7f64ed54f93c');
+        console.log(d1);
         d1.map((ele)=> {
             if (ele['appliedUsers']) {
 
